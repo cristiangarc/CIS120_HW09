@@ -20,11 +20,11 @@ import javax.swing.*;
 
 /**
  * GameCourt
- * 
+ *
  * This class holds the primary game logic for how different objects interact
  * with one another. Take time to understand how the timer interacts with the
  * different methods and how it repaints the GUI on every tick().
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class GameCourt extends JPanel {
@@ -34,7 +34,7 @@ public class GameCourt extends JPanel {
 	private Player player;
 	private List<Zombie> zombies;
 	private List<KiBlast> kiBlasts;
-	
+
 	private List<Score> scores;
 
 	// player motion state: player can be moving, jumping,
@@ -48,11 +48,11 @@ public class GameCourt extends JPanel {
 		MOVE_JUMP_R,
 		BUMP,
 	}
-	
+
 	// number of jumps so far
 	// resets when player touches the ground after a jump
 	private int jump_count;
-	
+
 	private boolean playing = false; // whether the game is running
 	private JLabel status; // Current status text (i.e. Running...)
 	private JLabel health_status; // player health
@@ -61,9 +61,9 @@ public class GameCourt extends JPanel {
 	private JLabel score_bar; // player score
 	private JPanel reset_control;
 	private JLabel roundLabel;
-	
+
 	private boolean round_end = false; // if round has ended
-	
+
 	private playerState player_state; // the player state
 	private int round; // current round
 	private int score = 0; // player score
@@ -71,10 +71,10 @@ public class GameCourt extends JPanel {
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
 	private int zombies_spawned = 0;
-	
+
 	private String userName;
 	private String high_scores = "HighScores.txt";
-	
+
 	// Game constants
 	public static final int COURT_WIDTH = 500;
 	public static final int COURT_HEIGHT = 300;
@@ -82,14 +82,14 @@ public class GameCourt extends JPanel {
 	public static final int INIT_TIME = 61;
 	public static final String DEFAULT_NAME = "AAAAAA";
 	public static final char DEFAULT_CHAR = '_';
-	
+
 	// Update interval for timer, in milliseconds
 	// originally 35
 	public static final int INTERVAL1 = 35;
 	public static final int INTERVAL2 = 1000;
-	
+
 	private int count2 = 0; // used for counting seconds in tick2()
-	
+
 	public GameCourt(JLabel status, JLabel health_status, HealthBar health_bar, JLabel score_bar,
 			JLabel player_time, JPanel reset_control, JLabel roundLabel) {
 		// creates border around the court area, JComponent method
@@ -107,14 +107,14 @@ public class GameCourt extends JPanel {
 			}
 		});
 		timer1.start(); // MAKE SURE TO START THE TIMER!
-		
+
 		Timer timer2 = new Timer(INTERVAL2, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				tick2();
 			}
 		});
 		timer2.start();
-		
+
 		// Enable keyboard focus on the court area.
 		// When this component has the keyboard focus, key
 		// events will be handled by its key listener.
@@ -192,7 +192,7 @@ public class GameCourt extends JPanel {
 							jump_count++;
 						}
 						break;
-							
+
 					default: break;
 					}
 				} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -203,6 +203,9 @@ public class GameCourt extends JPanel {
 						kb.increaseDamage(round);
 						kiBlasts.add(kb);
 					}
+				} else if (e.getKeyCode() == KeyEvent.VK_F7) {
+					// game state changes to debug mode
+					debug_mode = true;
 				}
 			}
 
@@ -259,9 +262,9 @@ public class GameCourt extends JPanel {
 		kill_count = 0;
 		jump_count = 0;
 		zombies_spawned = 0;
-		
+
 		kiBlasts = new LinkedList<>();
-		
+
 		playing = true;
 		status.setText("Running...");
 		round = 1;
@@ -269,7 +272,7 @@ public class GameCourt extends JPanel {
 		zombies = new LinkedList<>();
 		max_zombies = totalRoundZombies();
 		initialRespawn();
-		
+
 		player_state = playerState.NORMAL;
 		health_status.setText("Health: " + Player.INIT_HEALTH);
 		health_bar.setHealth(Player.INIT_HEALTH);
@@ -290,7 +293,7 @@ public class GameCourt extends JPanel {
 			player.move();
 			moveKiBlasts();
 			moveZombies();
-			
+
 			// impose gravity on the player if in air and has been bumped by a zombie
 			switch(player_state) {
 			case BUMP:
@@ -298,7 +301,7 @@ public class GameCourt extends JPanel {
 				break;
 			default: break;
 			}
-			
+
 			// damage the player if hit by a zombie and recoil the player
 			// check for the game end conditions
 			Zombie z = bumpZombie();
@@ -307,37 +310,37 @@ public class GameCourt extends JPanel {
 				damagePlayer(z.damage);
 				jump_count = Math.max(0, jump_count - 1); // enable an extra jump
 			}
-			
+
 			// damage zombies that are hit by KiBlasts and
 			// update player score
 			int killed = blastZombies();
-			
+
 			// remove all KiBlasts that are out of bounds
 			kiBlasts.removeAll(kisOutOfBounds());
-			
-			// synchronize player's jumps so that player returns to a 
+
+			// synchronize player's jumps so that player returns to a
 			// non-JUMP state when ground is reached
 			syncJump();
-			
+
 			// check if player is dead
 			if (player.isDead()) {
 				gameLost();
 				reset_control.setVisible(true);
 			}
-			
+
 			// spawn more zombies if round has not ended and
-			// max zombie limit has not been reached 
+			// max zombie limit has not been reached
 			if (!round_end && zombies_spawned < max_zombies) {
 				respawnZombies(killed);
 			}
-			
+
 			roundEnded(); // check if round ended
 
 			// update the display
 			repaint();
 		}
 	}
-	
+
 	/**
 	 * Decrement time. If round has ended, increment round and
 	 * reset game state to the start of a new round
@@ -385,7 +388,7 @@ public class GameCourt extends JPanel {
 	public Dimension getPreferredSize() {
 		return new Dimension(COURT_WIDTH, COURT_HEIGHT);
 	}
-	
+
 	/**
 	 * Change player state
 	 * @param state
@@ -394,7 +397,7 @@ public class GameCourt extends JPanel {
 	public void setPlayerState(playerState state) {
 		player_state = state;
 	}
-	
+
 	/**
 	 * move each kiblast on the field
 	 */
@@ -403,7 +406,7 @@ public class GameCourt extends JPanel {
 			k.move();
 		}
 	}
-	
+
 	/**
 	 * draw each kiblast on the field
 	 * @param g
@@ -413,7 +416,7 @@ public class GameCourt extends JPanel {
 			k.draw(g);
 		}
 	}
-	
+
 	/**
 	 * move each zombie on the field
 	 */
@@ -422,7 +425,7 @@ public class GameCourt extends JPanel {
 			z.move(player);
 		}
 	}
-	
+
 	/**
 	 * draw each zombie on the field
 	 * @param g
@@ -432,14 +435,14 @@ public class GameCourt extends JPanel {
 			z.draw(g);
 		}
 	}
-	
+
 	/**
 	 * Update the score displayed
 	 */
 	public void updateScore() {
 		score_bar.setText("Score: " + score);
 	}
-	
+
 	/**
 	 * Returns the zombie that the player bumped into
 	 * @return
@@ -454,7 +457,7 @@ public class GameCourt extends JPanel {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Damage the player according to which zombie hits the player, and
 	 * update health bar with new health
@@ -465,7 +468,7 @@ public class GameCourt extends JPanel {
 		health_bar.setHealth(player.getHealth());
 		health_bar.repaint();
 	}
-	
+
 	/**
 	 * inflicts damage on zombies based on which KiBlast hits
 	 * @param k
@@ -491,7 +494,7 @@ public class GameCourt extends JPanel {
 		}
 		return zbs;
 	}
-	
+
 	/**
 	 * Inflict damage on all zombies with the KiBlasts on the field (if there are any).
 	 * Remove the KiBlasts that hit zombies as well as any dead zombies
@@ -517,7 +520,7 @@ public class GameCourt extends JPanel {
 		}
 		return killed;
 	}
-	
+
 	/**
 	 * Removes all ki blasts from the field if they are out of bounds
 	 * @return
@@ -532,7 +535,7 @@ public class GameCourt extends JPanel {
 		}
 		return kbs;
 	}
-	
+
 	/**
 	 * Algorithm for determining the total number of zombies for the
 	 * current round
@@ -546,7 +549,7 @@ public class GameCourt extends JPanel {
 		int i = Math.max(0, 5 * round);
 		return i;
 	}
-	
+
 	/**
 	 * Determines the initial zombies spawned as a factor of the round
 	 * @return
@@ -575,7 +578,7 @@ public class GameCourt extends JPanel {
 		}
 		return i;
 	}
-	
+
 	/**
 	 * Respawn zombies (call this after the initial zombie respawn)
 	 * pseudorandomly
@@ -593,7 +596,7 @@ public class GameCourt extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Respawn one zombie at its respawn position and increase its health.
 	 * Called after the initial respawn of zombies
@@ -604,7 +607,7 @@ public class GameCourt extends JPanel {
 		z.increaseHealth(round);
 		zombies.add(z);
 	}
-	
+
 	/**
 	 * Respawn cowboy zombie
 	 */
@@ -614,7 +617,7 @@ public class GameCourt extends JPanel {
 		z.increaseHealth(round);
 		zombies.add(z);
 	}
-	
+
 	/**
 	 * Spawn a random zombie
 	 */
@@ -625,7 +628,7 @@ public class GameCourt extends JPanel {
 			respawnRegular();
 		}
 	}
-	
+
 	/**
 	 * Update player velocities according the current player state
 	 */
@@ -655,7 +658,7 @@ public class GameCourt extends JPanel {
 		default: break;
 		}
 	}
-	
+
 	/**
 	 * Once a damaged player hits the ground, return to normal state
 	 */
@@ -667,7 +670,7 @@ public class GameCourt extends JPanel {
 			jump_count = 0;
 		}
 	}
-	
+
 	/**
 	 * Impose gravity on the player's jumps.
 	 * If player has returned from a jump, update velocities accordingly
@@ -696,16 +699,16 @@ public class GameCourt extends JPanel {
 				player.v_y += Math.abs(GRAVITY);
 			}
 		}
-	
+
 	/**
 	 * Check if player has used up all of his/her jumps in the air
 	 * @return
-	 * True if the player has remaining jumps in the air, false otherwise 
+	 * True if the player has remaining jumps in the air, false otherwise
 	 */
 	public boolean jumpsRemain() {
 		return jump_count < Player.MAX_JUMPS;
 	}
-	
+
 	/**
 	 * The player has won so update the game state
 	 */
@@ -713,7 +716,7 @@ public class GameCourt extends JPanel {
 		playing = false;
 		status.setText("You Win!");
 	}
-	
+
 	/**
 	 * The player has lost so update the game state
 	 */
@@ -725,7 +728,7 @@ public class GameCourt extends JPanel {
 			status.setText("You Lose!");
 		}
 	}
-	
+
 	/**
 	 * check round ending conditions
 	 * @return
@@ -736,47 +739,47 @@ public class GameCourt extends JPanel {
 			round_end = true;
 		}
 	}
-	
+
 	public void updateRoundLabel() {
 		roundLabel.setText("Round " + round);
 	}
-	
+
 	/*
 	 * These methods are getter methods for getting characteristics about the player
 	 */
-	
+
 	public int getPlayerPX() {
 		return player.pos_x;
 	}
-	
+
 	public int getPlayerPY() {
 		return player.pos_y;
 	}
-	
+
 	public int getPlayerVX() {
 		return player.v_x;
 	}
-	
+
 	public int getPlayerVY() {
 		return player.v_y;
 	}
-	
+
 	public int getPlayerMax_X() {
 		return player.max_x;
 	}
-	
+
 	/*
 	 * These methods are for reading scores from the file HighScores.
 	 * The scores are stored so as to be displayed if invoked.
-	 * 
+	 *
 	 */
-	
+
 	/**
 	 * Display the current high scores. Call after the scores have been saved.
 	 */
 	public void displayScores() {
 		Collections.sort(scores);
-		
+
 		int count = 1;
 		String display = "";
 		for (Score s : scores) {
@@ -790,7 +793,7 @@ public class GameCourt extends JPanel {
 		JOptionPane.showMessageDialog(null, display, "Highscores (Name - Score)",
 				JOptionPane.PLAIN_MESSAGE);
 	}
-	
+
 	/**
 	 * Formats the user typed name to make File reading easier
 	 * @param name
@@ -810,7 +813,7 @@ public class GameCourt extends JPanel {
 		}
 		return newName;
 	}
-	
+
 	/**
 	 * Save the player's name and score on the high score leaderboards.
 	 * The top 15 scores will be saved.
@@ -819,7 +822,7 @@ public class GameCourt extends JPanel {
 		if (userName == null) {
 			int confirmation = JOptionPane.showConfirmDialog(null, "Save score?");
 			if (confirmation == 0) {
-				userName = JOptionPane.showInputDialog("Create a Username " + 
+				userName = JOptionPane.showInputDialog("Create a Username " +
 								"(Max 6 Characters Will Be Stored):");
 				if (userName != null) {
 					if (userName.length() == 0) {
@@ -843,9 +846,9 @@ public class GameCourt extends JPanel {
 			JOptionPane.showMessageDialog(null, "Score already saved");
 		}
 	}
-	
+
 	/**
-	 * Store all of the high scores if not already done so. 
+	 * Store all of the high scores if not already done so.
 	 */
 	public void storeScores() {
 		if (scores == null) {
@@ -858,7 +861,7 @@ public class GameCourt extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Read all of the names and scores in the high scores leaderboards
 	 * @param buff
@@ -876,7 +879,7 @@ public class GameCourt extends JPanel {
 			line = buff.readLine();
 		}
 	}
-	
+
 	/**
 	 * Returns the name part of the file line
 	 * @param line
@@ -894,7 +897,7 @@ public class GameCourt extends JPanel {
 		}
 		return word;
 	}
-	
+
 	/**
 	 * Reads the score part of the file line
 	 * @param word
@@ -914,9 +917,9 @@ public class GameCourt extends JPanel {
 				}
 			}
 			return Integer.parseInt(s);
-		}	
+		}
 	}
-	
+
 	/**
 	 * Returns the score part of the line read by the reader
 	 * @param line
@@ -932,5 +935,5 @@ public class GameCourt extends JPanel {
 			return "";
 		}
 	}
-	
+
 }
