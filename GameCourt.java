@@ -206,7 +206,7 @@ public class GameCourt extends JPanel {
 						kb.increaseDamage(round);
 						kiBlasts.add(kb);
 					}
-				} if (e.getKeyCode() == KeyEvent.VK_F7) {
+				} else if (e.getKeyCode() == KeyEvent.VK_F7) {
 					// game state changes to debug mode
 					debug_mode = true;
 					System.out.println("Debugging...");
@@ -266,6 +266,7 @@ public class GameCourt extends JPanel {
 		kill_count = 0;
 		jump_count = 0;
 		zombies_spawned = 0;
+		debug_mode = false;
 		pokeballs_spawned = 0;
 
 		kiBlasts = new LinkedList<>();
@@ -293,15 +294,14 @@ public class GameCourt extends JPanel {
 	 * triggers.
 	 */
 	void tick() {
+		if (debug_mode) {
+			status.setText("Debugging...")
+		}
 		if (playing) {
 			// advance the player and zombies in their current direction.
 			player.move();
 			moveKiBlasts();
 			moveZombies();
-
-			if (debug_mode == true) {
-				status.setText("Debugging...")
-			}
 
 			// impose gravity on the player if in air and has been bumped by a zombie
 			switch(player_state) {
