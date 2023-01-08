@@ -54,7 +54,7 @@ public class GameCourt extends JPanel {
 	private int jump_count;
 
 	private boolean playing = false; // whether the game is running
-	private int debug_mode = false; // whether debugging is on
+	private boolean debug_mode = false; // whether debugging is on
 	private JLabel status; // Current status text (i.e. Running...)
 	private JLabel health_status; // player health
 	private JLabel player_time;
@@ -168,8 +168,8 @@ public class GameCourt extends JPanel {
 						}
 						break;
 					default: break;
-					System.out.println("Moving Right..");
 					}
+					System.out.println("Moving Right..");
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_UP) {
 					switch(player_state) {
@@ -295,7 +295,7 @@ public class GameCourt extends JPanel {
 	 */
 	void tick() {
 		if (debug_mode) {
-			status.setText("Debugging...")
+			status.setText("Debugging...");
 		}
 		if (playing) {
 			// advance the player and zombies in their current direction.
