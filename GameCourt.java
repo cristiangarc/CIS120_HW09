@@ -71,6 +71,7 @@ public class GameCourt extends JPanel {
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
 	private int zombies_spawned = 0;
+	private int debug_mode = false;
 	private int pokeballs_spawned = 0;
 
 	private String userName;
@@ -167,6 +168,7 @@ public class GameCourt extends JPanel {
 						}
 						break;
 					default: break;
+					System.out.println("Moving Right..");
 					}
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_UP) {
@@ -204,10 +206,10 @@ public class GameCourt extends JPanel {
 						kb.increaseDamage(round);
 						kiBlasts.add(kb);
 					}
-				} else if (e.getKeyCode() == KeyEvent.VK_F7) {
+				} if (e.getKeyCode() == KeyEvent.VK_F7) {
 					// game state changes to debug mode
 					debug_mode = true;
-					System.out.println("Debugging..")
+					System.out.println("Debugging...");
 				}
 			}
 
@@ -297,7 +299,7 @@ public class GameCourt extends JPanel {
 			moveKiBlasts();
 			moveZombies();
 
-			if (debug_mode) {
+			if (debug_mode == true) {
 				status.setText("Debugging...")
 			}
 
