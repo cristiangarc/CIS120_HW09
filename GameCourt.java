@@ -71,6 +71,7 @@ public class GameCourt extends JPanel {
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
 	private int zombies_spawned = 0;
+	private int pokeballs_spawned = 0;
 
 	private String userName;
 	private String high_scores = "HighScores.txt";
@@ -262,10 +263,14 @@ public class GameCourt extends JPanel {
 		kill_count = 0;
 		jump_count = 0;
 		zombies_spawned = 0;
+		pokeballs_spawned = 0;
 
 		kiBlasts = new LinkedList<>();
 
 		playing = true;
+		if (debug_mode) {
+			status.setText("Debugging...")
+		}
 		status.setText("Running...");
 		round = 1;
 		updateRoundLabel();
