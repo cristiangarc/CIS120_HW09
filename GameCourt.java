@@ -268,9 +268,6 @@ public class GameCourt extends JPanel {
 		kiBlasts = new LinkedList<>();
 
 		playing = true;
-		if (debug_mode) {
-			status.setText("Debugging...")
-		}
 		status.setText("Running...");
 		round = 1;
 		updateRoundLabel();
@@ -298,6 +295,10 @@ public class GameCourt extends JPanel {
 			player.move();
 			moveKiBlasts();
 			moveZombies();
+
+			if (debug_mode) {
+				status.setText("Debugging...")
+			}
 
 			// impose gravity on the player if in air and has been bumped by a zombie
 			switch(player_state) {
