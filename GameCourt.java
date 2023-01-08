@@ -54,6 +54,7 @@ public class GameCourt extends JPanel {
 	private int jump_count;
 
 	private boolean playing = false; // whether the game is running
+	private int debug_mode = false; // whether debugging is on
 	private JLabel status; // Current status text (i.e. Running...)
 	private JLabel health_status; // player health
 	private JLabel player_time;
@@ -71,7 +72,6 @@ public class GameCourt extends JPanel {
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
 	private int zombies_spawned = 0;
-	private int debug_mode = false;
 	private int pokeballs_spawned = 0;
 
 	private String userName;
@@ -81,7 +81,7 @@ public class GameCourt extends JPanel {
 	public static final int COURT_WIDTH = 500;
 	public static final int COURT_HEIGHT = 300;
 	public static final int GRAVITY = 1;
-	public static final int INIT_TIME = 61;
+	public static final int INIT_TIME = 51;
 	public static final String DEFAULT_NAME = "AAAAAA";
 	public static final char DEFAULT_CHAR = '_';
 
@@ -310,7 +310,7 @@ public class GameCourt extends JPanel {
 				break;
 			default: break;
 			}
-
+;;
 			// damage the player if hit by a zombie and recoil the player
 			// check for the game end conditions
 			Zombie z = bumpZombie();
