@@ -207,6 +207,7 @@ public class GameCourt extends JPanel {
 				} else if (e.getKeyCode() == KeyEvent.VK_F7) {
 					// game state changes to debug mode
 					debug_mode = true;
+					System.out.println("Debugging..")
 				}
 			}
 
