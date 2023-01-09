@@ -261,13 +261,13 @@ public class GameCourt extends JPanel {
 	 */
 	public void reset() {
 		player = new Player();
+		debug_mode = false;
 		score = 0;
 		time = INIT_TIME;
 		score_bar.setText("Score: " + score);
 		kill_count = 0;
 		jump_count = 0;
 		zombies_spawned = 0;
-		debug_mode = false;
 		pokeballs_spawned = 0;
 
 		kiBlasts = new LinkedList<>();
@@ -295,10 +295,32 @@ public class GameCourt extends JPanel {
 	 * triggers.
 	 */
 	void tick() {
-		if (debug_mode) {
-			status.setText("Debugging...");
-		}
 		if (playing) {
+			if (debug_mode) {
+				status.setText("Debugging...");
+				switch(player_state) {
+					case NORMAL:
+						break;
+					case MOVE_L:
+						System.out.println("Moving Left...");
+						break;
+					case MOVE_R:
+						System.out.println("Moving Right...");
+						break;
+					case JUMP:
+						System.out.println("Jumping Up...");
+						break;
+					case MOVE_JUMP_L:
+						System.out.println("Jumping Left...");
+						break;
+					case MOVE_JUMP_R:
+						System.out.println("Jumping Right...");
+						break;
+					case BUMP:
+						System.out.println("Bumped...");
+						break;
+				}
+			}
 			// advance the player and zombies in their current direction.
 			player.move();
 			moveKiBlasts();
