@@ -261,13 +261,13 @@ public class GameCourt extends JPanel {
 	 */
 	public void reset() {
 		player = new Player();
+		debug_mode = false;
 		score = 0;
 		time = INIT_TIME;
 		score_bar.setText("Score: " + score);
 		kill_count = 0;
 		jump_count = 0;
 		zombies_spawned = 0;
-		debug_mode = false;
 		pokeballs_spawned = 0;
 
 		kiBlasts = new LinkedList<>();
