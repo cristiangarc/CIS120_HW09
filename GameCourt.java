@@ -148,6 +148,7 @@ public class GameCourt extends JPanel {
 						break;
 					default: break;
 					}
+					System.out.println("Moving Left..");
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 					switch(player_state) {
