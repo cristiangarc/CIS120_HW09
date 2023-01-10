@@ -27,40 +27,45 @@ public class Game implements Runnable {
 		frame.add(status_panel, BorderLayout.SOUTH);
 		final JLabel status = new JLabel("Running...");
 		status_panel.add(status);
-		
+
 		final JLabel roundLabel = new JLabel("Round " + 0);
-		
+
 		// Health points
 		final JLabel player_health = new JLabel("Health: " + Player.INIT_HEALTH);
 		// Player health bar
 		HealthBar health_bar = new HealthBar();
-		
+
 		// Time count
 		final JLabel player_time = new JLabel("Time: " + GameCourt.INIT_TIME + "s");
-		
+
 		// Player score
 		final JLabel player_score = new JLabel("Score: " + 0);
-		
+
 		// Controls for after game ends
 		final JPanel reset_control = new JPanel();
-		
+
+		// Stats for debugging the game
+		final JPanel debugging_panel = new JPanel();
+		final JLabel debugging_velx = new JLabel("Player Velocity_x: " + 0);
+		final JLabel debugging_vely = new JLabel("\nPlayer Velocity_y: " + 0);
+
 		// Main playing area
 		final GameCourt court = new GameCourt(status, player_health, health_bar,
-				player_score, player_time, reset_control, roundLabel);
+				player_score, player_time, reset_control, roundLabel, debugging_panel, debugging_velx, debugging_vely);
 		frame.add(court, BorderLayout.CENTER);
-		
+
 		// Control panel
 		final JPanel control_panel = new JPanel();
-		
+
 		final JPanel player_stats = new JPanel();
-		
+
 		player_stats.add(roundLabel);
 		player_stats.add(player_health);
 		player_stats.add(health_bar);
 		player_stats.add(player_time);
 		player_stats.add(player_score);
 		control_panel.add(player_stats, BorderLayout.NORTH);
-		
+
 		final JButton save_score = new JButton("Save Score");
 		save_score.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -73,7 +78,7 @@ public class Game implements Runnable {
 				court.displayScores();
 			}
 		});
-		
+
 		// Note here that when we add an action listener to the reset
 		// button, we define it as an anonymous inner class that is
 		// an instance of ActionListener with its actionPerformed()
@@ -91,20 +96,30 @@ public class Game implements Runnable {
 		reset_control.setVisible(false); // make invisible until game ends
 		control_panel.add(reset_control, BorderLayout.SOUTH);
 		control_panel.setPreferredSize(new Dimension (
-				(int) control_panel.getPreferredSize().getWidth(),
-				(int) (control_panel.getPreferredSize().getHeight() +
-						reset_control.getPreferredSize().getHeight())));
-		
+			(int) control_panel.getPreferredSize().getWidth(),
+			(int) (control_panel.getPreferredSize().getHeight() +
+					reset_control.getPreferredSize().getHeight() //+
+					// debugging_panel.getPreferredSize().getHeight()
+					)));
+		debugging_panel.add(debugging_velx, BorderLayout.NORTH); // add debugging stats to debug panel
+		// debugging_panel.setPreferredSize(new Dimension (
+		// 	(int) debugging_panel.getPreferredSize().getWidth(),
+		// 	(int) debugging_panel.getPreferredSize().getHeight()));
+		debugging_panel.add(debugging_vely, BorderLayout.SOUTH);
+		debugging_panel.setVisible(false); // make invisible until debugging starts
+		control_panel.add(debugging_panel, BorderLayout.CENTER); // add debug panel to control panel
+
 		frame.add(control_panel, BorderLayout.NORTH);
-		
+
+
 		// Put the frame on the screen
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		
+
 		// Start game
 		court.reset();
-		
+
 	}
 
 	/*
@@ -117,7 +132,7 @@ public class Game implements Runnable {
 				"Movement:\n" +
 				"Move Left: Arrow Key Left\n" +
 				"Move Right: Arrow Key Right\n" +
-				"Jump: Arrow Key Up\n" + 
+				"Jump: Arrow Key Up\n" +
 				"Shoot: Spacebar\n\n" +
 				"Objective:\nKill as many zombies before time runs out!";
 		JOptionPane.showMessageDialog(null, message, "Controls", JOptionPane.INFORMATION_MESSAGE);
