@@ -998,6 +998,6 @@ public class GameCourt extends JPanel {
 	* Updates the text on the number of zombies currently spawned
 	*/
 	public void updateDebugZombies() {
-		debugging_zombies.setText("Zombies: " + (zombies_spawned - kill_count));
+		debugging_zombies.setText("Zombies: " + zombies.size());
 	}
 }
