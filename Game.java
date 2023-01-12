@@ -46,12 +46,14 @@ public class Game implements Runnable {
 
 		// Stats for debugging the game
 		final JPanel debugging_panel = new JPanel();
-		final JLabel debugging_velx = new JLabel("Player Velocity_x: " + 0);
-		final JLabel debugging_vely = new JLabel("\nPlayer Velocity_y: " + 0);
+		final JLabel debugging_velx = new JLabel("Velocity_x: " + 0);
+		final JLabel debugging_vely = new JLabel("Velocity_y: " + 0);
+		final JLabel debugging_zombies = new JLabel("Zombies: " + 0);
 
 		// Main playing area
 		final GameCourt court = new GameCourt(status, player_health, health_bar,
-				player_score, player_time, reset_control, roundLabel, debugging_panel, debugging_velx, debugging_vely);
+				player_score, player_time, reset_control, roundLabel, debugging_panel,
+				debugging_velx, debugging_vely, debugging_zombies);
 		frame.add(court, BorderLayout.CENTER);
 
 		// Control panel
@@ -99,18 +101,19 @@ public class Game implements Runnable {
 			(int) control_panel.getPreferredSize().getWidth(),
 			(int) (control_panel.getPreferredSize().getHeight() +
 					reset_control.getPreferredSize().getHeight() //+
-					// debugging_panel.getPreferredSize().getHeight()
+					// control_panel.getPreferredSize().getHeight()
 					)));
-		debugging_panel.add(debugging_velx, BorderLayout.NORTH); // add debugging stats to debug panel
+		debugging_panel.add(debugging_velx); // add debugging stats to debug panel
 		// debugging_panel.setPreferredSize(new Dimension (
 		// 	(int) debugging_panel.getPreferredSize().getWidth(),
 		// 	(int) debugging_panel.getPreferredSize().getHeight()));
-		debugging_panel.add(debugging_vely, BorderLayout.SOUTH);
+		debugging_panel.add(debugging_vely);
+		debugging_panel.add(debugging_zombies);
 		debugging_panel.setVisible(false); // make invisible until debugging starts
-		control_panel.add(debugging_panel, BorderLayout.CENTER); // add debug panel to control panel
+		// control_panel.add(debugging_panel, BorderLayout.CENTER); // add debug panel to control panel
+		court.add(debugging_panel, BorderLayout.NORTH);
 
 		frame.add(control_panel, BorderLayout.NORTH);
-
 
 		// Put the frame on the screen
 		frame.pack();
