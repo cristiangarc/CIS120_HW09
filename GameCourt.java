@@ -62,6 +62,10 @@ public class GameCourt extends JPanel {
 	private JLabel score_bar; // player score
 	private JPanel reset_control;
 	private JLabel roundLabel;
+	private JPanel debugging_panel;
+	private JLabel debugging_velx;
+	private JLabel debugging_vely;
+	private JLabel debugging_zombies;
 
 	private boolean round_end = false; // if round has ended
 
@@ -81,7 +85,7 @@ public class GameCourt extends JPanel {
 	public static final int COURT_WIDTH = 500;
 	public static final int COURT_HEIGHT = 300;
 	public static final int GRAVITY = 1;
-	public static final int INIT_TIME = 51;
+	public static final int INIT_TIME = 30;
 	public static final String DEFAULT_NAME = "AAAAAA";
 	public static final char DEFAULT_CHAR = '_';
 
@@ -93,7 +97,8 @@ public class GameCourt extends JPanel {
 	private int count2 = 0; // used for counting seconds in tick2()
 
 	public GameCourt(JLabel status, JLabel health_status, HealthBar health_bar, JLabel score_bar,
-			JLabel player_time, JPanel reset_control, JLabel roundLabel) {
+			JLabel player_time, JPanel reset_control, JLabel roundLabel,
+			JPanel debugging_panel, JLabel debugging_velx, JLabel debugging_vely, JLabel debugging_zombies) {
 		// creates border around the court area, JComponent method
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -148,7 +153,6 @@ public class GameCourt extends JPanel {
 						break;
 					default: break;
 					}
-					System.out.println("Moving Left..");
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 					switch(player_state) {
@@ -170,7 +174,6 @@ public class GameCourt extends JPanel {
 						break;
 					default: break;
 					}
-					System.out.println("Moving Right..");
 				}
 				else if (e.getKeyCode() == KeyEvent.VK_UP) {
 					switch(player_state) {
@@ -209,8 +212,7 @@ public class GameCourt extends JPanel {
 					}
 				} else if (e.getKeyCode() == KeyEvent.VK_F7) {
 					// game state changes to debug mode
-					debug_mode = true;
-					System.out.println("Debugging...");
+					debug_mode = !debug_mode;
 				}
 			}
 
@@ -243,6 +245,12 @@ public class GameCourt extends JPanel {
 						break;
 					default: break;
 					}
+				} else if (e.getKeyCode() == KeyEvent.VK_F7) {
+					if (debug_mode) {
+						System.out.println("Debugging...");
+					} else {
+						System.out.println("Running...");
+					}
 				}
 			}
 		});
@@ -254,6 +262,10 @@ public class GameCourt extends JPanel {
 		this.player_time = player_time;
 		this.reset_control = reset_control;
 		this.roundLabel = roundLabel;
+		this.debugging_panel = debugging_panel;
+		this.debugging_velx = debugging_velx;
+		this.debugging_vely = debugging_vely;
+		this.debugging_zombies = debugging_zombies;
 	}
 
 	/**
@@ -298,6 +310,7 @@ public class GameCourt extends JPanel {
 		if (playing) {
 			if (debug_mode) {
 				status.setText("Debugging...");
+				debugging_panel.setVisible(true);
 				switch(player_state) {
 					case NORMAL:
 						break;
@@ -320,7 +333,12 @@ public class GameCourt extends JPanel {
 						System.out.println("Bumped...");
 						break;
 				}
-			}
+				updateDebugVelocities();
+				updateDebugZombies();
+			} else {
+				status.setText("Running...");
+				debugging_panel.setVisible(false);
+			};
 			// advance the player and zombies in their current direction.
 			player.move();
 			moveKiBlasts();
@@ -968,4 +986,18 @@ public class GameCourt extends JPanel {
 		}
 	}
 
+	/*
+	* Updates the debugging velocity stats
+	*/
+	public void updateDebugVelocities() {
+		debugging_velx.setText("Velocity_x: " + getPlayerVX());
+		debugging_vely.setText("Velocity_y: " + getPlayerVY());
+	}
+
+	/*
+	* Updates the text on the number of zombies currently spawned
+	*/
+	public void updateDebugZombies() {
+		debugging_zombies.setText("Zombies: " + (zombies_spawned - kill_count));
+	}
 }
