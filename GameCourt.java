@@ -73,9 +73,10 @@ public class GameCourt extends JPanel {
 	private int round; // current round
 	private int score = 0; // player score
 	private int time;
+	private int break_time = 6; // number of seconds that the round-end break lasts
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
-	private int zombies_spawned = 0;
+	private int zombies_spawned = 0; // total num of zombies spawned in the round
 	private int pokeballs_spawned = 0;
 
 	private String userName;
@@ -92,7 +93,7 @@ public class GameCourt extends JPanel {
 	// Update interval for timer, in milliseconds
 	// originally 35
 	public static final int INTERVAL1 = 35;
-	public static final int INTERVAL2 = 1000;
+	public static final int INTERVAL2 = 1000; // 1 second = 1000 milliseconds
 
 	private int count2 = 0; // used for counting seconds in tick2()
 
@@ -211,7 +212,7 @@ public class GameCourt extends JPanel {
 						kiBlasts.add(kb);
 					}
 				} else if (e.getKeyCode() == KeyEvent.VK_F7) {
-					// game state changes to debug mode
+					// game state changes between debug mode and playing mode
 					debug_mode = !debug_mode;
 				}
 			}
@@ -392,7 +393,8 @@ public class GameCourt extends JPanel {
 	}
 
 	/**
-	 * Decrement time. If round has ended, increment round and
+	 * Primary task is to decrement the time displayed by the game's timer.
+	 * If the round has ended, increment round and
 	 * reset game state to the start of a new round
 	 */
 	void tick2() {
@@ -404,7 +406,7 @@ public class GameCourt extends JPanel {
 					gameLost();
 					reset_control.setVisible(true);
 				}
-				if (round_end) {
+				if (round_end) { // player break
 					round++; // next round
 					updateRoundLabel();
 					zombies_spawned = 0;
@@ -413,7 +415,7 @@ public class GameCourt extends JPanel {
 				}
 			} else {
 				if (count2 > 0) {
-					if (count2 == 6) {
+					if (count2 == break_time) { // break_time-second break
 						round_end = false;
 						kill_count = 0;
 						count2 = 0;
@@ -595,9 +597,11 @@ public class GameCourt extends JPanel {
 	public int totalRoundZombies() {
 		if (round == 1) {
 			return 5;
+		} else {
+			// TODO: update algo for the total number of zombies per round
+			// int i = Math.max(0, 5 * round);
+			return 5 * round;
 		}
-		int i = Math.max(0, 5 * round);
-		return i;
 	}
 
 	/**
@@ -995,7 +999,7 @@ public class GameCourt extends JPanel {
 	}
 
 	/*
-	* Updates the text on the number of zombies currently spawned
+	* Updates the debugging text on the number of zombies currently spawned
 	*/
 	public void updateDebugZombies() {
 		debugging_zombies.setText("Zombies: " + zombies.size());
