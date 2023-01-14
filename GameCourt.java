@@ -69,14 +69,13 @@ public class GameCourt extends JPanel {
 	private JLabel debugging_zombies;
 
 	private boolean round_end = false; // if round has ended
-
+	private boolean break_has_started; // whether the break has started
 	private playerState player_state; // the player state
 	private int round; // current round
 	private int score = 0; // player score
 	private int time;
-	private int break_time = 6; // number of seconds that the round-end break lasts
+	private int break_time = 6; // number of seconds for the round-end break
 	private long start_time;
-	private long time_elapsed; // number of milliseconds elapsed for the game
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
 	private int zombies_spawned = 0; // total num of zombies spawned in the round
@@ -98,7 +97,9 @@ public class GameCourt extends JPanel {
 	public static final int INTERVAL1 = 35;
 	public static final int INTERVAL2 = 1000; // 1 second = 1000 milliseconds
 
-	private int count2 = 0; // used for counting seconds in tick2()
+	private long time_elapsed_break; // used for counting milliseconds during break
+	private long break_time_start; // start time for break
+	private int time_at_round_end; // the time at round end
 
 	public GameCourt(JLabel status, JLabel health_status, HealthBar health_bar, JLabel score_bar,
 			JLabel player_time, JPanel reset_control, JLabel roundLabel,
@@ -118,13 +119,6 @@ public class GameCourt extends JPanel {
 			}
 		});
 		timer1.start(); // MAKE SURE TO START THE TIMER!
-
-		Timer timer2 = new Timer(INTERVAL2, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tick2();
-			}
-		});
-		timer2.start();
 
 		// Enable keyboard focus on the court area.
 		// When this component has the keyboard focus, key
@@ -281,6 +275,7 @@ public class GameCourt extends JPanel {
 		score = 0;
 		start_time = System.currentTimeMillis();
 		time = INIT_TIME;
+		time_elapsed_break = 0;
 		score_bar.setText("Score: " + score);
 		kill_count = 0;
 		jump_count = 0;
@@ -290,6 +285,7 @@ public class GameCourt extends JPanel {
 		kiBlasts = new LinkedList<>();
 
 		playing = true;
+		break_has_started = false;
 		status.setText("Running...");
 		round = 1;
 		updateRoundLabel();
@@ -393,39 +389,47 @@ public class GameCourt extends JPanel {
 
 			// update the display
 			repaint();
-		}
-	}
-
-	/**
-	 * Primary task is to decrement the time displayed by the game's timer.
-	 * If the round has ended, increment round and
-	 * reset game state to the start of a new round
-	 TODO: Refactor to add time elapsed with System.currentTimeMillis()
-	 */
-	void tick2() {
-		if (playing) {
+			/**
+			* Primary task here is to decrement the time displayed by the game's timer.
+			* If the round has ended, increment round and
+			* reset game state to the start of a new round
+			*/
+			// TODO: Update to account for time spent on round-end breaks
 			time = (int) Math.max(0.0, Math.floor((INIT_TIME * 1000 - getElapsedTime()) / 1000));
 			player_time.setText("Time: " + time + "s");
-			if (time == 0) {
+			// TODO: Update logic for when time's up
+			if (time + (round - 1) * break_time == 0) {
 				gameLost();
 				reset_control.setVisible(true);
 			}
+			/*
+			* TODO: Refactor to account for the start of the break,
+			* and the end of a break
+			*/
 			if (round_end) { // player break
-				round++; // next round
-				updateRoundLabel();
-				zombies_spawned = 0;
-				max_zombies = totalRoundZombies();
-				count2++; // count 1 second
-			}
-			if (count2 > 0) {
-				if (count2 == break_time) { // break_time-second break
-					round_end = false;
-					kill_count = 0;
-					count2 = 0;
-					initialRespawn();
+				if (time_elapsed_break == 0) {
+					break_time_start = System.currentTimeMillis();
+					time_elapsed_break = System.currentTimeMillis() - break_time_start;
+					break_has_started = true;
 				} else {
-					count2++;
-				}
+					if (break_has_started) {
+						// break_time-second break
+						if ((int) (time_elapsed_break / 1000) == break_time) {
+							round++; // next round
+							updateRoundLabel();
+							zombies_spawned = 0;
+							max_zombies = totalRoundZombies();
+							round_end = false;
+							kill_count = 0;
+							initialRespawn();
+							time_elapsed_break = 0;
+							break_has_started = false;
+						} else {
+							time_elapsed_break = System.currentTimeMillis() - break_time_start;
+						}				} else {
+
+						}
+					}
 			}
 		}
 	}
