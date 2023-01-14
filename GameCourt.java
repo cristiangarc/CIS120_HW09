@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.time.*;
 
 import javax.swing.*;
 
@@ -74,6 +75,8 @@ public class GameCourt extends JPanel {
 	private int score = 0; // player score
 	private int time;
 	private int break_time = 6; // number of seconds that the round-end break lasts
+	private long start_time;
+	private long time_elapsed; // number of milliseconds elapsed for the game
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
 	private int zombies_spawned = 0; // total num of zombies spawned in the round
@@ -276,6 +279,7 @@ public class GameCourt extends JPanel {
 		player = new Player();
 		debug_mode = false;
 		score = 0;
+		start_time = System.currentTimeMillis();
 		time = INIT_TIME;
 		score_bar.setText("Score: " + score);
 		kill_count = 0;
@@ -396,33 +400,31 @@ public class GameCourt extends JPanel {
 	 * Primary task is to decrement the time displayed by the game's timer.
 	 * If the round has ended, increment round and
 	 * reset game state to the start of a new round
+	 TODO: Refactor to add time elapsed with System.currentTimeMillis()
 	 */
 	void tick2() {
 		if (playing) {
-			if (count2 == 0) {
-				time--;
-				player_time.setText("Time: " + time + "s");
-				if (time == 0) {
-					gameLost();
-					reset_control.setVisible(true);
-				}
-				if (round_end) { // player break
-					round++; // next round
-					updateRoundLabel();
-					zombies_spawned = 0;
-					max_zombies = totalRoundZombies();
-					count2++; // count 1 second
-				}
-			} else {
-				if (count2 > 0) {
-					if (count2 == break_time) { // break_time-second break
-						round_end = false;
-						kill_count = 0;
-						count2 = 0;
-						initialRespawn();
-					} else {
-						count2++;
-					}
+			time = (int) Math.max(0.0, Math.floor((INIT_TIME * 1000 - getElapsedTime()) / 1000));
+			player_time.setText("Time: " + time + "s");
+			if (time == 0) {
+				gameLost();
+				reset_control.setVisible(true);
+			}
+			if (round_end) { // player break
+				round++; // next round
+				updateRoundLabel();
+				zombies_spawned = 0;
+				max_zombies = totalRoundZombies();
+				count2++; // count 1 second
+			}
+			if (count2 > 0) {
+				if (count2 == break_time) { // break_time-second break
+					round_end = false;
+					kill_count = 0;
+					count2 = 0;
+					initialRespawn();
+				} else {
+					count2++;
 				}
 			}
 		}
@@ -1003,5 +1005,12 @@ public class GameCourt extends JPanel {
 	*/
 	public void updateDebugZombies() {
 		debugging_zombies.setText("Zombies: " + zombies.size());
+	}
+
+	/*
+	* Return the elapsed time in game in milliseconds
+	*/
+	public long getElapsedTime() {
+		return System.currentTimeMillis() - start_time;
 	}
 }
