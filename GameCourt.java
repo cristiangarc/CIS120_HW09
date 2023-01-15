@@ -64,9 +64,7 @@ public class GameCourt extends JPanel {
 	private JPanel reset_control;
 	private JLabel roundLabel;
 	private JPanel debugging_panel;
-	private JLabel debugging_velx;
-	private JLabel debugging_vely;
-	private JLabel debugging_zombies;
+	private JLabel debugging_stats;
 
 	private boolean round_end = false; // if round has ended
 	private boolean break_has_started; // whether the break has started
@@ -103,7 +101,7 @@ public class GameCourt extends JPanel {
 
 	public GameCourt(JLabel status, JLabel health_status, HealthBar health_bar, JLabel score_bar,
 			JLabel player_time, JPanel reset_control, JLabel roundLabel,
-			JPanel debugging_panel, JLabel debugging_velx, JLabel debugging_vely, JLabel debugging_zombies) {
+			JPanel debugging_panel, JLabel debugging_stats) {
 		// creates border around the court area, JComponent method
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
@@ -261,9 +259,7 @@ public class GameCourt extends JPanel {
 		this.reset_control = reset_control;
 		this.roundLabel = roundLabel;
 		this.debugging_panel = debugging_panel;
-		this.debugging_velx = debugging_velx;
-		this.debugging_vely = debugging_vely;
-		this.debugging_zombies = debugging_zombies;
+		this.debugging_stats = debugging_stats;
 	}
 
 	/**
@@ -334,8 +330,7 @@ public class GameCourt extends JPanel {
 						System.out.println("Bumped...");
 						break;
 				}
-				updateDebugVelocities();
-				updateDebugZombies();
+				updateDebugStats();
 			} else {
 				status.setText("Running...");
 				debugging_panel.setVisible(false);
@@ -397,8 +392,10 @@ public class GameCourt extends JPanel {
 			// TODO: Update to account for time spent on round-end breaks
 			time = (int) Math.max(0.0, Math.floor((INIT_TIME * 1000 - getElapsedTime()) / 1000));
 			player_time.setText("Time: " + time + "s");
-			// TODO: Update logic for when time's up
-			if (time + (round - 1) * break_time == 0) {
+			/* TODO: Update logic for when time's up. One possible solution:
+			* time + (round - 1) * break_time == 0
+			*/
+			if (time == 0) {
 				gameLost();
 				reset_control.setVisible(true);
 			}
@@ -406,30 +403,25 @@ public class GameCourt extends JPanel {
 			* TODO: Refactor to account for the start of the break,
 			* and the end of a break
 			*/
-			if (round_end) { // player break
-				if (time_elapsed_break == 0) {
+			if (round_end) {
+				if (!break_has_started) {
 					break_time_start = System.currentTimeMillis();
-					time_elapsed_break = System.currentTimeMillis() - break_time_start;
 					break_has_started = true;
 				} else {
-					if (break_has_started) {
-						// break_time-second break
-						if ((int) (time_elapsed_break / 1000) == break_time) {
-							round++; // next round
-							updateRoundLabel();
-							zombies_spawned = 0;
-							max_zombies = totalRoundZombies();
-							round_end = false;
-							kill_count = 0;
-							initialRespawn();
-							time_elapsed_break = 0;
-							break_has_started = false;
-						} else {
-							time_elapsed_break = System.currentTimeMillis() - break_time_start;
-						}				} else {
-
-						}
+					// break_time-second break
+					time_elapsed_break = System.currentTimeMillis() - break_time_start;
+					if ((int) (time_elapsed_break / 1000) == break_time) {
+						round++; // next round
+						updateRoundLabel();
+						zombies_spawned = 0;
+						max_zombies = totalRoundZombies();
+						round_end = false;
+						kill_count = 0;
+						initialRespawn();
+						time_elapsed_break = 0;
+						break_has_started = false;
 					}
+				}
 			}
 		}
 	}
@@ -999,16 +991,13 @@ public class GameCourt extends JPanel {
 	/*
 	* Updates the debugging velocity stats
 	*/
-	public void updateDebugVelocities() {
-		debugging_velx.setText("Velocity_x: " + getPlayerVX());
-		debugging_vely.setText("Velocity_y: " + getPlayerVY());
-	}
-
-	/*
-	* Updates the debugging text on the number of zombies currently spawned
-	*/
-	public void updateDebugZombies() {
-		debugging_zombies.setText("Zombies: " + zombies.size());
+	public void updateDebugStats() {
+		debugging_stats.setText(
+		"Velocity_x: " + getPlayerVX() + "\n " +
+		"Velocity_y: " + getPlayerVY() + "\n " +
+		"Zombies: " + zombies.size() + "\n " +
+		"Break Time: " + time_elapsed_break + "s"
+		);
 	}
 
 	/*
