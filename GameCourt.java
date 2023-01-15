@@ -35,6 +35,7 @@ public class GameCourt extends JPanel {
 	private Player player;
 	private List<Zombie> zombies;
 	private List<KiBlast> kiBlasts;
+	private List<PokeBall> pokeBalls;
 
 	private List<Score> scores;
 
