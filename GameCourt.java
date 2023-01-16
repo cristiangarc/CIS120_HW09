@@ -77,8 +77,9 @@ public class GameCourt extends JPanel {
 	private long start_time;
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
-	private int zombies_spawned = 0; // total num of zombies spawned in the round
-	private int pokeballs_spawned = 0;
+	private static final int MAX_POKEBALLS = 1; // max pokeballs in the game
+	private int zombies_spawned;
+	private int pokeballs_spawned;
 
 	private String userName;
 	private String high_scores = "HighScores.txt";
@@ -93,8 +94,7 @@ public class GameCourt extends JPanel {
 
 	// Update interval for timer, in milliseconds
 	// originally 35
-	public static final int INTERVAL1 = 35;
-	public static final int INTERVAL2 = 1000; // 1 second = 1000 milliseconds
+	public static final int INTERVAL = 35;
 
 	private long time_elapsed_break; // used for counting milliseconds during break
 	private long break_time_start; // start time for break
@@ -112,12 +112,12 @@ public class GameCourt extends JPanel {
 		// each time the timer triggers. We define a helper method
 		// called tick() that actually does everything that should
 		// be done in a single timestep.
-		Timer timer1 = new Timer(INTERVAL1, new ActionListener() {
+		Timer timer = new Timer(INTERVAL, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				tick();
 			}
 		});
-		timer1.start(); // MAKE SURE TO START THE TIMER!
+		timer.start(); // MAKE SURE TO START THE TIMER!
 
 		// Enable keyboard focus on the court area.
 		// When this component has the keyboard focus, key
@@ -210,6 +210,14 @@ public class GameCourt extends JPanel {
 				} else if (e.getKeyCode() == KeyEvent.VK_F7) {
 					// game state changes between debug mode and playing mode
 					debug_mode = !debug_mode;
+				} else if (e.getKeyCode() == KeyEvent.VK_F6) {
+					if (debug_mode) {
+						System.out.println("New pokeball...");
+						if (pokeBalls.size() < MAX_POKEBALLS) {
+							PokeBall pb = new PokeBall();
+							pokeBalls.add(pb);
+						}
+					}
 				}
 			}
 
@@ -248,6 +256,10 @@ public class GameCourt extends JPanel {
 					} else {
 						System.out.println("Running...");
 					}
+				} else if (e.getKeyCode() == KeyEvent.VK_F6) {
+					if (debug_mode) {
+						System.out.println("Yay...");
+					}
 				}
 			}
 		});
@@ -280,6 +292,7 @@ public class GameCourt extends JPanel {
 		pokeballs_spawned = 0;
 
 		kiBlasts = new LinkedList<>();
+		pokeBalls = new LinkedList<>();
 
 		playing = true;
 		break_has_started = false;
@@ -340,6 +353,7 @@ public class GameCourt extends JPanel {
 			player.move();
 			moveKiBlasts();
 			moveZombies();
+			movePokeBalls();
 
 			// impose gravity on the player if in air and has been bumped by a zombie
 			switch(player_state) {
@@ -433,6 +447,7 @@ public class GameCourt extends JPanel {
 		drawZombies(g);
 		player.draw(g);
 		drawKiBlasts(g);
+		drawPokeBalls(g);
 	}
 
 	@Override
@@ -478,12 +493,31 @@ public class GameCourt extends JPanel {
 	}
 
 	/**
+	 * move each pokeball on the field
+	 */
+	public void movePokeBalls() {
+		for (PokeBall pb : pokeBalls) {
+			pb.move();
+		}
+	}
+
+	/**
 	 * draw each zombie on the field
 	 * @param g
 	 */
 	public void drawZombies(Graphics g) {
 		for (Zombie z : zombies) {
 			z.draw(g);
+		}
+	}
+
+	/**
+	 * draw each pokeball on the field
+	 * @param g
+	 */
+	public void drawPokeBalls(Graphics g) {
+		for (PokeBall pb : pokeBalls) {
+			pb.draw(g);
 		}
 	}
 
