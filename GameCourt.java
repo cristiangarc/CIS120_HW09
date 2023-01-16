@@ -77,7 +77,7 @@ public class GameCourt extends JPanel {
 	private long start_time;
 	private int kill_count = 0; // zombies killed this round
 	private int max_zombies; // maximum zombies this round
-	private static final int MAX_POKEBALLS = 1; // max pokeballs in the game
+	private static final int MAX_POKEBALLS = 2; // max pokeballs in the game
 	private int zombies_spawned;
 	private int pokeballs_spawned;
 
@@ -379,6 +379,9 @@ public class GameCourt extends JPanel {
 			// remove all KiBlasts that are out of bounds
 			kiBlasts.removeAll(kisOutOfBounds());
 
+			// remove PokeBalls that are out of bounds
+			pokeBalls.removeAll(pokeBallsOutOfBounds());
+
 			// synchronize player's jumps so that player returns to a
 			// non-JUMP state when ground is reached
 			syncJump();
@@ -622,6 +625,21 @@ public class GameCourt extends JPanel {
 	}
 
 	/**
+	 * Removes all pokeballs from the field if they are out of bounds
+	 * @return
+	 * the PokeBalls that are out of bounds
+	 */
+	public List<PokeBall> pokeBallsOutOfBounds() {
+		List<PokeBall> pbs = new LinkedList<>();
+		for (PokeBall pb : pokeBalls) {
+			if (pb.outOfBounds()) {
+				pbs.add(pb);
+			}
+		}
+		return pbs;
+	}
+
+	/**
 	 * Algorithm for determining the total number of zombies for the
 	 * current round
 	 * @return
@@ -682,6 +700,7 @@ public class GameCourt extends JPanel {
 				}
 			}
 		}
+
 	}
 
 	/**
@@ -1031,7 +1050,8 @@ public class GameCourt extends JPanel {
 		"Velocity_x: " + getPlayerVX() + "\n " +
 		"Velocity_y: " + getPlayerVY() + "\n " +
 		"Zombies: " + zombies.size() + "\n " +
-		"Break Time: " + time_elapsed_break + "s"
+		"Break Time: " + time_elapsed_break + "s" + "\n " +
+		"PokeBall Velocity_x: " + PokeBall.INIT_VEL_X
 		);
 	}
 
