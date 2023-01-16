@@ -50,7 +50,8 @@ public class Game implements Runnable {
 		"Velocity_x: " + 0 + "\n " +
 		"Velocity_y: " + 0 + "\n " +
 		"Zombies: " + 0 + "\n " +
-		"Break Time: " + 0 + "s");
+		"Break Time: " + 0 + "s" + "\n " +
+		"PokeBall Velocity_x: " + PokeBall.INIT_VEL_X);
 		// final JLabel debugging_velx = new JLabel("Velocity_x: " + 0);
 		// final JLabel debugging_vely = new JLabel("Velocity_y: " + 0);
 		final JLabel debugging_zombies = new JLabel("Zombies: " + 0);
