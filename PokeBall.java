@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 public class PokeBall extends GameChar {
   // TODO: Update img
-	public static String pic = "PokeballImage.png";
+	public static String pic = "pokeball.png";
 
 	public static final int SIZE = 40;
 	public static final int INIT_X = 0;
