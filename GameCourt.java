@@ -376,6 +376,10 @@ public class GameCourt extends JPanel {
 			// update player score
 			int killed = blastZombies();
 
+			// TODO: damage zombies that are hit by Pokeballs and
+			// update player score
+			blastZombies2();
+
 			// remove all KiBlasts that are out of bounds
 			kiBlasts.removeAll(kisOutOfBounds());
 
@@ -583,6 +587,31 @@ public class GameCourt extends JPanel {
 		return zbs;
 	}
 
+	/* inflicts damage on zombies based on which Pokeballs hit
+	 * @param pb
+	 * the Pokeball that is fired
+	 * @param pbs
+	 * the set of Pokeballs that will be removed from the field
+	 * (removed if they touch a zombie)
+	 * @return
+	 * total number of zombies that are dead
+	 */
+	public List<Zombie> damageZombies2(PokeBall pb, List<PokeBall> pbs) {
+		List<Zombie> zbs = new LinkedList<>();
+		for (Zombie zom : zombies) {
+			if (pb.intersects(zom)) {
+				zom.takeDamage(pb.damage);
+				if (zom.isDead()) {
+					zbs.add(zom);
+					score += zom.damage * 10;
+				}
+				pbs.add(pb);
+				break;
+			}
+		}
+		return zbs;
+	}
+
 	/**
 	 * Inflict damage on all zombies with the KiBlasts on the field (if there are any).
 	 * Remove the KiBlasts that hit zombies as well as any dead zombies
@@ -604,6 +633,32 @@ public class GameCourt extends JPanel {
 				updateScore();
 			}
 			kiBlasts.removeAll(kbs);
+			zombies.removeAll(zbs);
+		}
+		return killed;
+	}
+
+	/**
+	 * Inflict damage on all zombies with the PokeBalls on the field (if there are any).
+	 * Remove the PokeBalls that hit zombies as well as any dead zombies
+	 * @return
+	 * The number of zombies killed during this tick
+	 */
+	public int blastZombies2() {
+		int killed = 0;
+		if (!pokeBalls.isEmpty()) {
+			List<PokeBall> pbs = new LinkedList<>();
+			List<Zombie> zbs = new LinkedList<>();
+			for (PokeBall pb : pokeBalls) {
+				List<Zombie> hit = damageZombies2(pb, pbs);
+				zbs.addAll(hit);
+			}
+			killed = zbs.size();
+			if (killed != 0) {
+				kill_count += killed;
+				updateScore();
+			}
+			pokeBalls.removeAll(pbs);
 			zombies.removeAll(zbs);
 		}
 		return killed;
