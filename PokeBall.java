@@ -6,25 +6,23 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class PokeBall extends GameChar {
-  // TODO: Update img
 	public static String pic = "pokeball.png";
 
 	public static final int SIZE = 40;
-	public static final int INIT_X = 0;
-	public static final int INIT_Y = GameCourt.COURT_HEIGHT - SIZE;
 	public static final int INIT_VEL_X = 5;
 	public static final int INIT_VEL_Y = 0; // TODO: update to negative (falling)
-  public static final int INIT_HEALTH = 1;
-  public static final int DAMAGE = 1;
+	public static final int INIT_HEALTH = 1;
+	public static final int DAMAGE = 7;
+	public static final int MAX_DAMAGE = 30;
 
 	private BufferedImage img;
 
-  public PokeBall() {
+  public PokeBall(Player player) {
 		// Initialize variables
 		this.v_x = INIT_VEL_X;
 		this.v_y = INIT_VEL_Y;
-		this.pos_x = INIT_X;
-		this.pos_y = INIT_Y;
+		this.pos_x = player.pos_x;
+		this.pos_y = player.pos_y;
 		this.width = SIZE;
 		this.height = 7 * SIZE / 4;
 
