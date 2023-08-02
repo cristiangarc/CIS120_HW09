@@ -214,7 +214,7 @@ public class GameCourt extends JPanel {
 					if (debug_mode) {
 						System.out.println("New pokeball...");
 						if (pokeBalls.size() < MAX_POKEBALLS) {
-							PokeBall pb = new PokeBall();
+							PokeBall pb = new PokeBall(player);
 							pokeBalls.add(pb);
 						}
 					}
@@ -376,7 +376,7 @@ public class GameCourt extends JPanel {
 			// update player score
 			int killed = blastZombies();
 
-			// TODO: damage zombies that are hit by Pokeballs and
+			// damage zombies that are hit by Pokeballs and
 			// update player score
 			blastZombies2();
 
@@ -587,7 +587,7 @@ public class GameCourt extends JPanel {
 		return zbs;
 	}
 
-	/* inflicts damage on zombies based on which Pokeballs hit
+	/* inflicts damage on zombies based on which Pokeball hits
 	 * @param pb
 	 * the Pokeball that is fired
 	 * @param pbs
